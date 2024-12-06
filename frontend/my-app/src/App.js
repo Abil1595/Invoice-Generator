@@ -11,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Card } from 'reactstrap';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'
+import Payment from './Payment';
 function App() {
   const [invoices, setInvoices] = useState([]);
   const [title, setTitle] = useState('');
@@ -34,7 +35,7 @@ function App() {
   const[quantity,setQuantity]=useState('')
   const[unitPrice,setUnitPrice]=useState(0)
   const[gst,setGst]=useState(0.18)
-
+  const [grandTotal,setGrandTotal]=useState(0)
   useEffect(() => {
     fetchInvoices();
   }, []);
@@ -139,6 +140,10 @@ const handleRemoveProduct=(index)=>{
 const calculateGrandToatl=()=>{
   return products.reduce((total,product)=>total+product.total+product.gst,0).toFixed(2);
 }
+useEffect(() => {
+  setGrandTotal(calculateGrandToatl());
+}, [products]);  // Only run when `products` changes
+
 const handleDownloadPdf=()=>{
   const doc=new jsPDF();
   const backgroundColor=[240,240,240];
@@ -421,14 +426,14 @@ doc.save('invoice.pdf')
               ))}     
               <tr>
                 <td colSpan="5" className="text-right">Grand Total (including GST)</td>
-                <td>${calculateGrandToatl()}</td>
+                <td>${grandTotal}</td>
                 <td></td>
               </tr>
             </tbody> 
           </Table> 
           </Card>
           <Button color="primary"  className="mt-3" onClick={handleDownloadPdf}>Download Products PDF</Button>
-        
+          <Payment totalAmount={grandTotal} setGrandTotal={setGrandTotal}/>
         </Col>
       </Row><br/><br/>  
       </Container>
